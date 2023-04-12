@@ -4,7 +4,7 @@ const OAuth2Data = require('./client3.json')
 const Console = require('console')
 
 const app = express()
-
+app.use(express.static('public'));
 const CLIENT_ID = OAuth2Data.web.client_id;
 const CLIENT_SECRET = OAuth2Data.web.client_secret;
 const REDIRECT_URL = OAuth2Data.web.redirect_uris[0];
@@ -13,7 +13,11 @@ Console.log(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 var authed = false;
 
+
 app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+app.get('/login', (req, res) => {
     var loggedUser = "";
     if (!authed) {
         // Generate an OAuth URL and redirect there
@@ -35,15 +39,7 @@ app.get('/', (req, res) => {
 
             }
             res.send("Logged in: "+loggedUser+"<img src=" + '"'+response.data.picture +'"' + " alt=" + '"'+response.data.name +'"' + " style=" + '"'+ "width:100px;height:100px;" +'"' + " />" + "<br>" +
-                "<div\n" +
-                "\tdata-width=\"185\"\n" +
-                "\tdata-longtitle=\"true\"\n" +
-                "\tclass=\"g-signin2\"\n" +
-                "\tdata-prompt=\"select_account\"\n" +
-                "\tdata-onsuccess=\"onGoogleSignIn\"\n" +
-                "\tdata-onfailure=\"onGoogleFailure\"\n" +
-                "\tdata-theme=\"dark\"\n" +
-                "></div>");
+            "<a href=" + '"'+"/logout"+'"' + ">Logout</a>");
 
         });
     }
@@ -61,11 +57,17 @@ app.get('/auth/google/callback', function (req, res) {
                 console.log('Successfully authenticated');
                 oAuth2Client.setCredentials(tokens);
                 authed = true;
-                res.redirect('/')
+                res.redirect('/login')
             }
         });
     }
 });
+
+app.get('/logout', (req, res) => {
+    authed = false;
+    res.redirect('/');
+});
+
 
 const port = process.env.port || 3000
 app.listen(port, () => console.log(`Server running at ${port}`));
