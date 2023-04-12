@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
                 console.log(response.data);
 
             }
-            res.send("Logged in!".concat(loggedUser,"<img src='" + response.data.picture +`"height"="23"+"width"="23"`+ "' />"));
+            res.send("Logged in: "+loggedUser+"<img src=" + '"'+response.data.picture +'"' + " alt=" + '"'+response.data.name +'"' + " style=" + '"'+ "width:100px;height:100px;" +'"' + " />" + "<br><a href=" + '"'+"/logout"+'"' + ">Logout</a>");
 
         });
     }
