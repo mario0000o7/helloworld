@@ -14,31 +14,29 @@ const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_U
 var authed = false;
 
 app.get('/', (req, res) => {
+    var loggedUser = "";
     if (!authed) {
         // Generate an OAuth URL and redirect there
         const url = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
-            scope: 'https://www.googleapis.com/auth/gmail.readonly'
+            scope: 'https://www.googleapis.com/auth/userinfo.profile'
         });
         console.log(url)
         res.redirect(url);
     } else {
-        const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-        gmail.users.labels.list({
-            userId: 'me',
-        }, (err, res) => {
-            if (err) return console.log('The API returned an error: ' + err);
-            const labels = res.data.labels;
-            if (labels.length) {
-                console.log('Labels:');
-                labels.forEach((label) => {
-                    console.log(`- ${label.name}`);
-                });
+        const oauth2 = google.oauth2({ version: 'v2', auth: oAuth2Client });
+        oauth2.userinfo.v2.me.get(function (err, response) {
+            if (err) {
+                console.log("NIESTETY BLAD")
+                console.log(err);
             } else {
-                console.log('No labels found.');
+                loggedUser = response.data.name;
+                console.log(response.data);
+
             }
+            res.send("Logged in!".concat(loggedUser,"<img src='" + response.data.picture +`"height"="23"+"width"="23"`+ "' />"));
+
         });
-        res.send('Logged in')
     }
 })
 
