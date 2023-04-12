@@ -1,12 +1,14 @@
 const { google } = require('googleapis');
 const express = require('express')
 const OAuth2Data = require('./client2.json')
+const Console = require('console')
 
 const app = express()
 
-const CLIENT_ID = OAuth2Data.client_id;
-const CLIENT_SECRET = OAuth2Data.client_secret;
-const REDIRECT_URL = OAuth2Data.redirect_uris;
+const CLIENT_ID = OAuth2Data.web.client_id;
+const CLIENT_SECRET = OAuth2Data.web.client_secret;
+const REDIRECT_URL = OAuth2Data.web.redirect_uris[0];
+Console.log(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 var authed = false;
