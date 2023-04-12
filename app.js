@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const express = require('express')
-const OAuth2Data = require('./client1.json')
+const OAuth2Data = require('./client2.json')
 
 const app = express()
 
