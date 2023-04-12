@@ -4,7 +4,7 @@ const OAuth2Data = require('./client3.json')
 const Console = require('console')
 
 const app = express()
-app.use(express.static('public'));
+app.use(express.static(__dirname+'/public'));
 const CLIENT_ID = OAuth2Data.web.client_id;
 const CLIENT_SECRET = OAuth2Data.web.client_secret;
 const REDIRECT_URL = OAuth2Data.web.redirect_uris[0];
