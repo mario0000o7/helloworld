@@ -34,7 +34,16 @@ app.get('/', (req, res) => {
                 console.log(response.data);
 
             }
-            res.send("Logged in: "+loggedUser+"<img src=" + '"'+response.data.picture +'"' + " alt=" + '"'+response.data.name +'"' + " style=" + '"'+ "width:100px;height:100px;" +'"' + " />" + "<br><a href=" + '"'+"/logout"+'"' + ">Logout</a>");
+            res.send("Logged in: "+loggedUser+"<img src=" + '"'+response.data.picture +'"' + " alt=" + '"'+response.data.name +'"' + " style=" + '"'+ "width:100px;height:100px;" +'"' + " />" + "<br>" +
+                "<div\n" +
+                "\tdata-width=\"185\"\n" +
+                "\tdata-longtitle=\"true\"\n" +
+                "\tclass=\"g-signin2\"\n" +
+                "\tdata-prompt=\"select_account\"\n" +
+                "\tdata-onsuccess=\"onGoogleSignIn\"\n" +
+                "\tdata-onfailure=\"onGoogleFailure\"\n" +
+                "\tdata-theme=\"dark\"\n" +
+                "></div>");
 
         });
     }
