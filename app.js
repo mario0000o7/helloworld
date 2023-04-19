@@ -235,7 +235,7 @@ app.get('/auth/google/callback', function (req, res) {
 app.get('/logout', (req, res) => {
     authed = false;
     github=false;
-    req.logout();
+    // req.logout();
     facebook=false;
     res.redirect('/');
 });
