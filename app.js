@@ -18,6 +18,7 @@ const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_U
 var authed = false;
 app.set('view engine', 'ejs');
 var access_token = "";
+var github=false;
 
 
 
@@ -26,17 +27,17 @@ app.get('/', (req, res) => {
 });
 app.get('/login', (req, res) => {
     var loggedUser = "";
-    if (!authed) {
-        // Generate an OAuth URL and redirect there
-        const url = oAuth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: 'https://www.googleapis.com/auth/userinfo.profile'
-        });
-        console.log(url)
-        res.redirect(url);
-    } else {
-        if(req.data.access_token)
-        {
+
+    if (github) {
+        axios({
+            method: 'get',
+            url: `https://api.github.com/user`,
+            headers: {
+                Authorization: 'token ' + access_token
+            }
+        }).then((response) => {
+            authed = true;
+            res.data = response.data;
             res.send(
                 `<html>
   <head>
@@ -55,10 +56,11 @@ app.get('/login', (req, res) => {
             <div class="col-sm-6">
               <div class="well">
                 <p>
-                  <strong>Name</strong>: ${req.data.name}<br>
-                  <strong>Username</strong>: ${req.data.login}<br>
-                    <strong>Company</strong>:  ${req.data.company}<br>
-                    <strong>Bio</strong>: ${req.data.bio}
+                  <strong>Name</strong>: ${res.data.name}<br>
+                  <strong>Username</strong>: ${res.data.login}<br>
+                    <strong>Company</strong>:  ${res.data.company}<br>
+                    <strong>Bio</strong>: ${res.data.bio}
+                    <a href="/logout">Logout</a>
                 </p>
               </div>
             </div>
@@ -67,11 +69,22 @@ app.get('/login', (req, res) => {
     </div>
   </body>
 </html>`
+            );
+
+        });
+        return;
 
 
-
-            )
-        }
+    }
+    if (!authed) {
+        // Generate an OAuth URL and redirect there
+        const url = oAuth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: 'https://www.googleapis.com/auth/userinfo.profile'
+        });
+        console.log(url)
+        res.redirect(url);
+    } else {
         const oauth2 = google.oauth2({ version: 'v2', auth: oAuth2Client });
         oauth2.userinfo.v2.me.get(function (err, response) {
             if (err) {
@@ -105,25 +118,13 @@ app.get('/auth/github/callback', function (req, res) {
         }
     }).then((response) => {
         access_token = response.data.access_token
-        res.redirect('/success');
-    })
-});
-
-
-app.get('/success', function(req, res) {
-
-    axios({
-        method: 'get',
-        url: `https://api.github.com/user`,
-        headers: {
-            Authorization: 'token ' + access_token
-        }
-    }).then((response) => {
-        authed = true;
-        res.data = response.data;
+        github=true;
         res.redirect('/login');
     })
 });
+
+
+
 
 app.get('/auth/google/callback', function (req, res) {
     const code = req.query.code
@@ -145,6 +146,7 @@ app.get('/auth/google/callback', function (req, res) {
 
 app.get('/logout', (req, res) => {
     authed = false;
+    github=false;
     res.redirect('/');
 });
 
