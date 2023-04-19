@@ -54,16 +54,11 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-app.get('/auth/facebook/callback',(req, res) => {
-passport.authenticate('facebook', {
+app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', {
         successRedirect: '/profile',
-        failureRedirect: '/'
-    })(req, res);
-    facebook=true;
-
-
-
-});
+        failureRedirect: '/error'
+    }));
 app.get('/login', (req, res) => {
     var loggedUser = "";
 
