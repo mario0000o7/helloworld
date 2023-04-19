@@ -3,6 +3,9 @@ const express = require('express')
 const OAuth2Data = require('./client3.json')
 const Console = require('console')
 const axios = require("axios");
+const session = require('express-session');
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
 
 const app = express()
 app.use(express.static(__dirname+'/public'));
@@ -19,11 +22,47 @@ var authed = false;
 app.set('view engine', 'ejs');
 var access_token = "";
 var github=false;
+var facebook=false;
 
+app.use(session({
+    resave: false,
+    saveUninitialized: true,
+    secret: 'SECRET'
+}));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
+
+passport.use(new FacebookStrategy({
+        clientID: 694617772417326,
+        clientSecret: '9f62cc764fca2feb3761d81e3010c16c',
+        callbackURL: 'https://helloworld-puce.vercel.app/auth/facebook/callback'
+    }, function (accessToken, refreshToken, profile, done) {
+        return done(null, profile);
+    }
+));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/auth/facebook/callback',(req, res) => {
+passport.authenticate('facebook', {
+        successRedirect: '/login',
+        failureRedirect: '/'
+    })(req, res);
+    facebook=true;
+
+
+
 });
 app.get('/login', (req, res) => {
     var loggedUser = "";
@@ -105,6 +144,9 @@ app.get('/login', (req, res) => {
         });
     }
 })
+app.get('/auth/facebook', passport.authenticate('facebook', {
+    scope: ['public_profile', 'email']
+}));
 app.get('/auth/github/callback', function (req, res) {
     // The req.query object has the query params that were sent to this route.
     const requestToken = req.query.code
@@ -124,7 +166,53 @@ app.get('/auth/github/callback', function (req, res) {
 });
 
 
+app.get('/profile', (req, res) => {
+    res.send(`
+    <html>
 
+<head>  
+  <title>Facebook Node Authentication</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
+  <style>
+    .card:hover {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+      margin-bottom: 54px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="light-blue lighten-1" role="navigation">
+    <div class="nav-wrapper container">
+      <a id="logo-container" href="#" class="brand-logo">Node Authentication</a>
+      <a href="/logout" class="right">Logout</a>
+    </div>
+  </nav>
+  <div class="section no-pad-bot" id="index-banner">
+    <div class="container">
+      <br><br>
+      <div class="row center">
+        <div class="col s12">
+          <div class="card">
+            <div class="card-content blue lighten-3">
+              <span class="card-title white-text"><strong><i class="large material-icons">person</i>
+                </strong></span>
+            </div>
+            <div class="card-action">
+              <h5><b>${req.user.displayName}</b></h5>
+              <p><strong>Facebook id</strong>: ${req.user.id}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>`)
+});
 
 app.get('/auth/google/callback', function (req, res) {
     const code = req.query.code
@@ -147,6 +235,8 @@ app.get('/auth/google/callback', function (req, res) {
 app.get('/logout', (req, res) => {
     authed = false;
     github=false;
+    req.logout();
+    facebook=false;
     res.redirect('/');
 });
 
