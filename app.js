@@ -131,8 +131,6 @@ app.get('/login', (req, res) => {
             }
             res.send(
                 "<img src=" + '"'+response.data.picture +'"' + " alt=" + '"'+response.data.name +'"' + " style=" + '"'+ "width:100px;height:100px;" +'"' + " />" +
-                "<br>"+
-                "Logged in: "+loggedUser+
                 + "<br>" +
             "<a href=" + '"'+"/logout"+'"' + ">Logout</a>");
 
