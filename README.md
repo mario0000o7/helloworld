@@ -17,7 +17,7 @@ Install my-project with npm
 Clone the project
 
 ```bash
-  git clone https://link-to-project
+  git clone https://github.com/mario0000o7/helloworld
 ```
 
 Go to the project directory
